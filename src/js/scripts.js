@@ -1,142 +1,241 @@
 import * as THREE from "three";
-import * as dat from "dat.gui";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import galaxy from "../img/galaxy.png";
-import galaxy2 from "../img/galaxy2.jpg";
+import stars from "../img/stars.jpg";
+import sunTexture from "../img/sun.jpg";
+import mercuryTexture from "../img/mercury.jpg";
+import venusTexture from "../img/venus.jpg";
+import earthTexture from "../img/earth.jpg";
+import marsTexture from "../img/mars.jpg";
+import jupiterTexture from "../img/jupiter.jpg";
+import saturnTexture from "../img/saturn.jpg";
+import saturnRingTexture from "../img/saturn-ring.png";
+import uranusTexture from "../img/uranus.jpg";
+import uranusRingTexture from "../img/uranus-ring.png";
+import neptuneTexture from "../img/neptune.jpg";
+
+const createPlanetOrbit = (radius) => {
+  const geometry = new THREE.RingGeometry(radius, radius - 0.1, 100, 1, 0, 10);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    side: THREE.DoubleSide,
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.rotation.x = 0.5 * Math.PI;
+  return mesh;
+};
+
+const createPlanet = ({
+  textureLoader,
+  radius,
+  widthSegment = 100,
+  heightSegment = 100,
+  texture,
+  position,
+  rotation,
+}) => {
+  const geometry = new THREE.SphereGeometry(
+    radius,
+    widthSegment,
+    heightSegment
+  );
+  const material = new THREE.MeshStandardMaterial({
+    map: textureLoader.load(texture),
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.x = position;
+  mesh.rotation.x = rotation;
+  return mesh;
+};
 
 const renderer = new THREE.WebGLRenderer();
-
 renderer.setSize(window.innerWidth, window.innerHeight);
-
-renderer.shadowMap.enabled = true;
 
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
-  75,
+  45,
   window.innerWidth / window.innerHeight,
   0.1,
   1000
 );
+camera.position.set(-90, 140, 140);
+camera.lookAt(100, 100, 100);
 
 const orbit = new OrbitControls(camera, renderer.domElement);
-
-const axesHelper = new THREE.AxesHelper(5);
-scene.add(axesHelper);
-
-const gridHelper = new THREE.GridHelper(30);
-scene.add(gridHelper);
-
-camera.position.set(0, 2, 5);
 orbit.update();
 
-const boxGeometry = new THREE.BoxGeometry();
-const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const box = new THREE.Mesh(boxGeometry, boxMaterial);
-scene.add(box);
+const ambientLight = new THREE.AmbientLight(0x333333);
+scene.add(ambientLight);
 
-const planeGeometry = new THREE.PlaneGeometry(30, 30);
-const planeMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffffff,
+const pointLight = new THREE.PointLight(0xffffff, 2, 500);
+scene.add(pointLight);
+
+const textureLoader = new THREE.TextureLoader();
+
+// sun
+const sunGeometry = new THREE.SphereGeometry(16, 300, 300);
+const subMaterial = new THREE.MeshBasicMaterial({
+  map: textureLoader.load(sunTexture),
+});
+const sun = new THREE.Mesh(sunGeometry, subMaterial);
+scene.add(sun);
+
+// mercury
+const mercury = createPlanet({
+  textureLoader,
+  radius: 3,
+  texture: mercuryTexture,
+  position: 28,
+  rotation: 0.1 * Math.PI,
+});
+const mercuryObj = new THREE.Object3D();
+mercuryObj.add(mercury);
+scene.add(mercuryObj);
+scene.add(createPlanetOrbit(28));
+
+// venus
+const venus = createPlanet({
+  textureLoader,
+  radius: 3.4,
+  texture: venusTexture,
+  position: 48,
+  rotation: 0.1 * Math.PI,
+});
+const venusObj = new THREE.Object3D();
+venusObj.add(venus);
+scene.add(venusObj);
+scene.add(createPlanetOrbit(48));
+
+// earth
+const earth = createPlanet({
+  textureLoader,
+  radius: 7,
+  texture: earthTexture,
+  position: 80,
+  rotation: 0.2 * Math.PI,
+});
+const earthObj = new THREE.Object3D();
+earthObj.add(earth);
+scene.add(earthObj);
+scene.add(createPlanetOrbit(80));
+
+// mars
+const mars = createPlanet({
+  textureLoader,
+  radius: 6,
+  texture: marsTexture,
+  position: 100,
+  rotation: -0.15 * Math.PI,
+});
+const marsObj = new THREE.Object3D();
+marsObj.add(mars);
+scene.add(marsObj);
+scene.add(createPlanetOrbit(100));
+
+// jupiter
+const jupiter = createPlanet({
+  textureLoader,
+  radius: 15,
+  texture: jupiterTexture,
+  position: 150,
+  rotation: -0.1 * Math.PI,
+});
+const jupiterObj = new THREE.Object3D();
+jupiterObj.add(jupiter);
+scene.add(jupiterObj);
+scene.add(createPlanetOrbit(150));
+
+// saturn
+const saturn = createPlanet({
+  textureLoader,
+  radius: 11,
+  texture: saturnTexture,
+  position: 200,
+  rotation: 0.2 * Math.PI,
+});
+const saturnObj = new THREE.Object3D();
+saturnObj.add(saturn);
+scene.add(saturnObj);
+scene.add(createPlanetOrbit(200));
+const saturnRingGeometry = new THREE.RingGeometry(12, 20, 100);
+const saturnRingMaterial = new THREE.MeshBasicMaterial({
+  map: textureLoader.load(saturnRingTexture),
   side: THREE.DoubleSide,
 });
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = -0.5 * Math.PI;
-plane.receiveShadow = true;
-scene.add(plane);
+const saturnRing = new THREE.Mesh(saturnRingGeometry, saturnRingMaterial);
+saturnRing.rotation.x = 0.5 * Math.PI;
+saturn.add(saturnRing);
 
-const sphereGeometry = new THREE.SphereGeometry(4);
-const sphereMaterial = new THREE.MeshStandardMaterial({
-  color: 0x0000ff,
-  wireframe: false,
+// uranus
+const uranus = createPlanet({
+  textureLoader,
+  radius: 6,
+  texture: uranusTexture,
+  position: 260,
+  rotation: 0.05 * Math.PI,
 });
-const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-sphere.position.set(-10, 10, 0);
-sphere.castShadow = true;
-scene.add(sphere);
+const uranusObj = new THREE.Object3D();
+uranusObj.add(uranus);
+scene.add(uranusObj);
+scene.add(createPlanetOrbit(260));
+const uranusRingGeometry = new THREE.RingGeometry(8, 9, 100);
+const uranusRingMaterial = new THREE.MeshBasicMaterial({
+  map: textureLoader.load(uranusRingTexture),
+  side: THREE.DoubleSide,
+});
+const uranusRing = new THREE.Mesh(uranusRingGeometry, uranusRingMaterial);
+uranus.add(uranusRing);
 
-// const ambientLight = new THREE.AmbientLight(0x333333);
-// scene.add(ambientLight);
+// neptune
+const neptune = createPlanet({
+  textureLoader,
+  radius: 5.5,
+  texture: neptuneTexture,
+  position: 320,
+  rotation: -0.5 * Math.PI,
+});
+const neptuneObj = new THREE.Object3D();
+neptuneObj.add(neptune);
+scene.add(neptuneObj);
+scene.add(createPlanetOrbit(320));
 
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-// directionalLight.position.set(-30, 50, 0);
-// directionalLight.castShadow = true;
-// directionalLight.shadow.camera.bottom = -12;
-// scene.add(directionalLight);
-
-// const directionalLightHelper = new THREE.DirectionalLightHelper(
-//   directionalLight,
-//   5
-// );
-// scene.add(directionalLightHelper);
-
-const spotLight = new THREE.SpotLight(0xffffff);
-spotLight.castShadow = true;
-spotLight.position.set(-100, 100, 0);
-spotLight.angle = 0.2;
-scene.add(spotLight);
-
-const spotLightHelper = new THREE.SpotLightHelper(spotLight);
-scene.add(spotLightHelper);
-
-scene.fog = new THREE.FogExp2(0xffffff, 0.01);
-
-// const textureLoader = new THREE.TextureLoader();
-// scene.background = textureLoader.load(galaxy);
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 scene.background = cubeTextureLoader.load([
-  galaxy2,
-  galaxy2,
-  galaxy,
-  galaxy,
-  galaxy,
-  galaxy,
+  stars,
+  stars,
+  stars,
+  stars,
+  stars,
+  stars,
 ]);
 
-const gui = new dat.GUI();
-
-const options = {
-  sphereColor: "#FFEA00",
-  wireframe: false,
-  speed: 0.01,
-  intensity: 1,
-  angle: 0.1,
-  penumbra: 0.5,
-};
-
-gui.addColor(options, "sphereColor").onChange((e) => {
-  sphere.material.color.set(e);
-});
-
-gui.add(options, "wireframe").onChange((e) => {
-  sphere.material.wireframe = e;
-});
-
-gui.add(options, "speed", 0, 0.1);
-
-gui.add(options, "intensity", 0, 1);
-
-gui.add(options, "angle", 0, 1);
-
-gui.add(options, "penumbra", 0, 1);
-
-let step = 0;
-
-const animate = (time) => {
-  box.rotation.x = time / 1000;
-  box.rotation.y = time / 1000;
-
-  step += options.speed;
-  sphere.position.y = 10 * Math.abs(Math.sin(step));
-
-  spotLight.angle = options.angle;
-  spotLight.intensity = options.intensity;
-  spotLight.penumbra = options.penumbra;
-  spotLightHelper.update();
-
+const animate = () => {
+  sun.rotateY(0.005);
+  mercury.rotateY(0.005);
+  mercuryObj.rotateY(0.02);
+  venus.rotateY(0.004);
+  venusObj.rotateY(0.01);
+  earth.rotateY(0.003);
+  earthObj.rotateY(0.008);
+  mars.rotateY(0.003);
+  marsObj.rotateY(0.006);
+  jupiter.rotateY(0.003);
+  jupiterObj.rotateY(0.0055);
+  saturn.rotateY(0.003);
+  saturnObj.rotateY(0.0065);
+  uranus.rotateZ(0.0035);
+  uranusObj.rotateY(0.0045);
+  neptune.rotateY(0.0025);
+  neptuneObj.rotateY(0.0035);
   renderer.render(scene, camera);
 };
 
 renderer.setAnimationLoop(animate);
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
